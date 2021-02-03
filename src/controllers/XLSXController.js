@@ -42,13 +42,12 @@ module.exports = {
             fs.writeFileSync(path.join(__dirname, "../", "..", "public", "planilhas-geradas", `${id}-${nomeDoArquivo}.xlsx`), buffer);
 
             console.log(`Arquivo gerado com sucesso.`);
-            usos--;
 
             this.DeleteFile(path.join(__dirname, "../", "../", "public", "planilhas-geradas", `${id}-${nomeDoArquivo}.xlsx`));
 
             response.send({
                 message: "Arquivo gerado com sucesso.",
-                link: `http://localhost:3030/planilhas-geradas/${id}-${nomeDoArquivo}.xlsx`
+                link: `http://localhost:3000/planilhas-geradas/${encodeURIComponent(id) + "-" + encodeURIComponent(nomeDoArquivo)}.xlsx`
             });
 
         } else {
@@ -57,8 +56,8 @@ module.exports = {
     },
 
     DeleteFile(path) {
-        schedule.schedule('* 1 * * * *', () => {
+        setTimeout(()=> {
             fs.unlinkSync(path);
-        });
+        }, 60000);
     }
 }
