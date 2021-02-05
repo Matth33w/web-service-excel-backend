@@ -19,14 +19,31 @@ module.exports = {
         });
     },
 
-    read(request, response) {
-        userModel.find({ authorization: request.body.authorization }, { name: 1, user: 1, email: 1, credits: 1 }, (err, docs) => {
-            response.send(docs);
+    authenticate(request, response) {
+        userModel.findOne({ authorization: request.body.authorization, email: request.body.email }, { name: 1, user: 1, email: 1, credits: 1 }, (err, docs) => {
+            if(docs){
+                response.send({docs, authenticated: true});
+            } else {
+                response.send({ authenticated: false });
+            }
+        });
+    },
+
+    async login(request, response) {
+        await userModel.findOne({ email: request.body.email, password: commands.cryptographText(request.body.password) }, async (err, doc) => {
+            if(doc) {
+                const newHash = commands.generateAuthorization();
+                await userModel.updateOne({ email: request.body.email, authorization: doc.authorization }, { authorization: newHash }, (err, res) => {
+                    response.send({message: "Logged in successfully!", auth: { authorization: newHash, email: request.body.email }});
+                });
+            } else {
+                response.send({ message: "User not found!" });
+            }
         });
     },
 
     edit(request, response) {
-
+        
     },
 
     delete(request, response) {
